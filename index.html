@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel='stylesheet' href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js"></script>
+</head>
+<body>
+    <form id="container" onsubmit="saveData(event)">
+        <div id="box1">
+            <h4>UserName :</h4>
+            <input id="box" placeholder="Enter name" required><br><br>
+            <h4>Password :</h4>
+            <input id="box" type="password" placeholder="Enter password" required><br><br>
+            <div id="box2">
+                <h4>City Name:</h4>
+                <select name="city" id="box3">
+                    <option value='Delhi'>Delhi</option>
+                    <option value='Pune'>Pune</option>
+                    <option value='Mumbai'>Mumbai</option>
+                    <option value='Hyderabad'>Hyderabad</option>
+                    <option value='Chennai'>Chennai</option>
+                    <option value='Bengaluru'>Bengaluru</option>
+                    <option value='Solapur'>Solapur</option>
+                </select><br>
+            </div>
+            <div>
+                <h4>Feedback:</h4>
+                <textarea id='feedback' name="feedback" placeholder="Please give your valuable feedback" required></textarea>
+            </div>
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+
+    <script>
+        let existingData = [];
+
+        // Load data from localStorage (if any)
+        window.onload = function() {
+            const storedData = localStorage.getItem('formData');
+            if (storedData) {
+                existingData = JSON.parse(storedData);
+            }
+        };
+
+        function saveData(event) {
+            event.preventDefault(); // Prevent form from submitting
+
+            // Collecting data from form
+            const username = document.querySelector('#box').value;
+            const password = document.querySelector('[type="password"]').value;
+            const city = document.querySelector('#box3').value;
+            const feedback = document.querySelector('#feedback').value;
+
+            // If no data exists, initialize the data with a header
+            if (existingData.length === 0) {
+                existingData.push(['Username', 'Password', 'City', 'Feedback']);
+            }
+
+            // Add new data
+            existingData.push([username, password, city, feedback]);
+
+            // Store updated data in localStorage
+            localStorage.setItem('formData', JSON.stringify(existingData));
+
+            // Create a new worksheet from the updated data
+            const ws = XLSX.utils.aoa_to_sheet(existingData);
+
+            // Create a new workbook and append the worksheet
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Form Data");
+
+            // Generate and download the updated Excel file
+            XLSX.writeFile(wb, 'updated_form_data.xlsx');
+        }
+    </script>
+</body>
+</html>
